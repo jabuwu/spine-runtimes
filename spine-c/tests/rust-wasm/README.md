@@ -41,3 +41,18 @@ cargo build --target wasm32-unknown-unknown  # Build WASM
 ```
 
 **Status**: Fully working. Test executable: 1.8 MB. All spine-c functionality operational including atlas disposal.
+
+## notes from jabu
+
+I'm too dumb and lazy to make wasm work manually. The way I test is within the browser, which can easily be done with [wasm-server-runner](https://github.com/jakobhellermann/wasm-server-runner). Need to do step 2 in that project's readme. Then:
+
+`cargo run --example test --target wasm32-unknown-unknown --release`
+
+Open the browser at the page and everything runs in the web!
+
+It seems that WASM builds die at runtime with an "env" error if there's a linker error.
+It seems that WASM builds die at comp time with an out of bounds error due to static initialization problems (though I'm still confused about this, if it works properly in emscripten).
+
+I commented or ifdef'd out things that are problematic in spine-cpp and spine-c. The libc stubs are just to compile and aren't implemented yet.
+For some reason cos, sin, and maybe other math functions don't need an impl...
+malloc and free are implemented in rust and this seems to work (in wasm_libc.rs)

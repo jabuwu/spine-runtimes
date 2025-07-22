@@ -15,7 +15,13 @@ fn main() {
         .include(spine_cpp_dir.join("include"))
         .include(spine_c_dir.join("include"))
         .include(spine_c_dir.join("src"))
+        .define("SPINE_NO_FILE_IO", None)
+        .define("HORRIBLE_RUST_WASM_HACK", None)
+        .flag("-Wno-everything")
         .flag("-std=c++11");
+    if is_wasm {
+        cpp_build.include("./wasm-include");
+    }
 
     // Always avoid C++ runtime (consistent with no-cpprt approach)
     cpp_build
@@ -28,11 +34,6 @@ fn main() {
     // Tell cc crate linker to not link libc++
     cpp_build.flag_if_supported("-Wl,-undefined,dynamic_lookup");
     cpp_build.cpp_link_stdlib(None);
-    
-    if is_wasm {
-        // For WASM, we may need additional setup, but let's first try without extra flags
-        // The target is already handled by cc-rs when building for wasm32-unknown-unknown
-    }
 
     // Add spine-cpp source files (no-cpprt variant = all sources + no-cpprt.cpp)
     let spine_cpp_src = spine_cpp_dir.join("src");
@@ -82,6 +83,7 @@ fn main() {
         .clang_arg("-I../../include")
         .clang_arg("-I../../../spine-cpp/include")
         .clang_arg("-I../../src")
+        .clang_arg("-fvisibility=default")
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
         .generate()
         .expect("Unable to generate bindings");
@@ -97,4 +99,5 @@ fn main() {
     println!("cargo:rerun-if-changed=../../spine-cpp/src");
     println!("cargo:rerun-if-changed=../../src");
     println!("cargo:rerun-if-changed=../../include/spine-c.h");
+    println!("cargo:rerun-if-changed=wasm-include");
 }

@@ -1,12 +1,22 @@
 [package]
-name = "spine-c-wasm-test"
+name = "spine"
 version = "0.1.0"
 edition = "2021"
 
-[lib]
-crate-type = ["cdylib"]
+#[lib]
+#crate-type = ["cdylib"]
 
 [dependencies]
+tracing = "0.1.40"
+web-sys = "0.3.77"
+
+[dev-dependencies]
+tracing-log = "0.2.0"
+tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
+
+[target.'cfg(target_arch = "wasm32")'.dev-dependencies]
+tracing-wasm = "0.2.1"
+console_error_panic_hook = "0.1.6"
 
 [build-dependencies]
 cc = "1.0"

@@ -32,6 +32,18 @@
 
 using namespace spine;
 
+#ifdef HORRIBLE_RUST_WASM_HACK
+
+// the consts are okay so long as the constructors don't do anything
+
+RTTI::RTTI(const char *className) {}
+
+RTTI::RTTI(const char *className, const RTTI &baseRTTI) {}
+
+RTTI::RTTI(const char *className, const RTTI &baseRTTI, const RTTI *interface1, const RTTI *interface2, const RTTI *interface3) {}
+
+#else
+
 RTTI::RTTI(const char *className) : _className(className), _pBaseRTTI(NULL), _interfaceCount(0) {
 	_interfaces[0] = NULL;
 	_interfaces[1] = NULL;
@@ -54,6 +66,8 @@ RTTI::RTTI(const char *className, const RTTI &baseRTTI, const RTTI *interface1, 
 	if (interface2) _interfaceCount++;
 	if (interface3) _interfaceCount++;
 }
+
+#endif
 
 const char *RTTI::getClassName() const {
 	return _className;

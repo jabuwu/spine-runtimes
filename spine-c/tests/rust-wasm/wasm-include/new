@@ -1,0 +1,7 @@
+typedef unsigned long size_t;
+void* operator new(size_t size, void* ptr) noexcept;
+
+extern "C" {
+    void* malloc(size_t size);
+    void free(void* ptr);
+}
