@@ -1,1 +1,1 @@
-int isspace( int ch );
+#include "./spine_wasm.h"

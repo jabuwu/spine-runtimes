@@ -1,1 +1,1 @@
-#define assert(condition) ((void)0)
+#include "./spine_wasm.h"

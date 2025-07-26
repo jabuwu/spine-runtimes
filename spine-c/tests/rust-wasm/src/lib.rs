@@ -120,7 +120,7 @@ pub extern "C" fn test_spine_basic() -> c_int {
         info!("Skeleton data is valid: {:?}", skeleton_data);
         // Test skeleton creation immediately 
         info!("Creating skeleton...");
-        /*let skeleton = spine_skeleton_create(skeleton_data);
+        let skeleton = spine_skeleton_create(skeleton_data);
         info!("Skeleton create returned: {:?}", skeleton);
         if skeleton.is_null() {
             spine_skeleton_data_result_dispose(result);
@@ -165,8 +165,7 @@ pub extern "C" fn test_spine_basic() -> c_int {
         } else {
             println!("FAILED! Invalid values");
             4 // Invalid values
-        }*/
-        0
+        }
     }
 }
 

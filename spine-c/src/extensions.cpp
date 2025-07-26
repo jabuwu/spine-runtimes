@@ -98,21 +98,21 @@ public:
 };
 
 // Static variables
-//static SpineExtension *defaultExtension;
-//static DebugExtension *debugExtension;
+
+static SpineExtension *defaultExtension = nullptr;
+static DebugExtension *debugExtension = nullptr;
 
 static void initExtensions() {
-	/*if (defaultExtension == nullptr) {
+	if (defaultExtension == nullptr) {
 		defaultExtension = new DefaultSpineExtension();
 		debugExtension = new DebugExtension(defaultExtension);
-	}*/
+	}
 }
 
 namespace spine {
 	SpineExtension *getDefaultExtension() {
 		initExtensions();
-		//return defaultExtension;
-        return nullptr;
+		return defaultExtension;
 	}
 }
 
@@ -127,12 +127,12 @@ int32_t spine_minor_version() {
 
 void spine_enable_debug_extension(bool enable) {
 	initExtensions();
-	//SpineExtension::setInstance(enable ? debugExtension : defaultExtension);
+	SpineExtension::setInstance(enable ? debugExtension : defaultExtension);
 }
 
 void spine_report_leaks() {
 	initExtensions();
-	//debugExtension->reportLeaks();
+	debugExtension->reportLeaks();
 	fflush(stdout);
 }
 
@@ -177,12 +177,17 @@ class LiteTextureLoad : public TextureLoader {
 	void unload(void *texture) {
 	}
 };
-//static LiteTextureLoad liteLoader;
+static LiteTextureLoad* liteLoader = nullptr;
 
 spine_atlas spine_atlas_load(const char *atlasData) {
-	/*if (!atlasData) return nullptr;
+    if (liteLoader == nullptr) {
+        void* place = malloc(sizeof(LiteTextureLoad));
+        liteLoader = new(place) LiteTextureLoad();
+    }
+
+	if (!atlasData) return nullptr;
 	int32_t length = (int32_t) strlen(atlasData);
-	auto atlas = new (__FILE__, __LINE__) Atlas(atlasData, length, "", &liteLoader, true);
+	auto atlas = new (__FILE__, __LINE__) Atlas(atlasData, length, "", liteLoader, true);
 	_spine_atlas *result = SpineExtension::calloc<_spine_atlas>(1, __FILE__, __LINE__);
 	result->atlas = atlas;
 	result->numImagePaths = (int32_t) atlas->getPages().size();
@@ -190,8 +195,7 @@ spine_atlas spine_atlas_load(const char *atlasData) {
 	for (int i = 0; i < result->numImagePaths; i++) {
 		result->imagePaths[i] = atlas->getPages()[i]->texturePath.buffer();
 	}
-	return (spine_atlas) result;*/
-    return (spine_atlas)1;
+	return (spine_atlas) result;
 }
 
 class CallbackTextureLoad : public TextureLoader {
@@ -199,7 +203,8 @@ class CallbackTextureLoad : public TextureLoader {
 	spine_texture_loader_unload_func unloadCb;
 
 public:
-	CallbackTextureLoad() {}
+    CallbackTextureLoad() : loadCb(nullptr), unloadCb(nullptr) {
+	}
 
 	void setCallbacks(spine_texture_loader_load_func load, spine_texture_loader_unload_func unload) {
 		loadCb = load;
@@ -214,14 +219,19 @@ public:
 		this->unloadCb(texture);
 	}
 };
-//static CallbackTextureLoad callbackLoader;
+static CallbackTextureLoad* callbackLoader;
 
 spine_atlas spine_atlas_load_callback(const char *atlasData, const char *atlasDir, spine_texture_loader_load_func load,
 									  spine_texture_loader_unload_func unload) {
-	/*if (!atlasData) return nullptr;
+    if (callbackLoader == nullptr) {
+        void* place = malloc(sizeof(CallbackTextureLoad));
+        callbackLoader = new(place) CallbackTextureLoad();
+    }
+
+	if (!atlasData) return nullptr;
 	int32_t length = (int32_t) strlen(atlasData);
-	callbackLoader.setCallbacks(load, unload);
-	auto atlas = new (__FILE__, __LINE__) Atlas(atlasData, length, (const char *) atlasDir, &callbackLoader, true);
+	callbackLoader->setCallbacks(load, unload);
+	auto atlas = new Atlas(atlasData, length, (const char *) atlasDir, callbackLoader, true);
 	_spine_atlas *result = SpineExtension::calloc<_spine_atlas>(1, __FILE__, __LINE__);
 	result->atlas = atlas;
 	result->numImagePaths = (int32_t) atlas->getPages().size();
@@ -229,8 +239,7 @@ spine_atlas spine_atlas_load_callback(const char *atlasData, const char *atlasDi
 	for (int i = 0; i < result->numImagePaths; i++) {
 		result->imagePaths[i] = atlas->getPages()[i]->texturePath.buffer();
 	}
-	return (spine_atlas) result;*/
-    return nullptr;
+	return (spine_atlas) result;
 }
 
 int32_t spine_atlas_get_num_image_paths(spine_atlas atlas) {
@@ -313,7 +322,7 @@ spine_skeleton_data_result spine_skeleton_data_load_json(spine_atlas atlas, cons
 }
 
 spine_skeleton_data_result spine_skeleton_data_load_binary(spine_atlas atlas, const uint8_t *skeletonData, int32_t length, const char *path) {
-	/*if (!atlas || !skeletonData) return nullptr;
+	if (!atlas || !skeletonData) return nullptr;
 	_spine_skeleton_data_result *result = SpineExtension::calloc<_spine_skeleton_data_result>(1, __FILE__, __LINE__);
 	SkeletonBinary binary((Atlas *) ((_spine_atlas *) atlas)->atlas);
 	binary.setScale(1);
@@ -345,8 +354,7 @@ spine_skeleton_data_result spine_skeleton_data_load_binary(spine_atlas atlas, co
 	}
 
 	result->skeletonData = (spine_skeleton_data) data;
-	return (spine_skeleton_data_result) result;*/
-	return nullptr;
+	return (spine_skeleton_data_result) result;
 }
 
 const char *spine_skeleton_data_result_get_error(spine_skeleton_data_result result) {

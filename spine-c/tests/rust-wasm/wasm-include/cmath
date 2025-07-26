@@ -1,13 +1,1 @@
-#pragma once
-namespace std {
-    double fmod( double x, double y );
-    double atan2( double y, double x );
-    double cos( double arg );
-    double sin( double arg );
-    double sqrt( double arg );
-    double acos( double arg );
-    bool isnan( double arg );
-    double nan( const char* arg );
-    double pow( double base, double exponent );
-    double ceil( double arg );
-}
+#include "./spine_wasm.h"
